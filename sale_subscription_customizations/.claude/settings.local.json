@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Read(//c/Program Files/Odoo 18.0.20250923/server/odoo/addons/**)"
+    ]
+  }
+}

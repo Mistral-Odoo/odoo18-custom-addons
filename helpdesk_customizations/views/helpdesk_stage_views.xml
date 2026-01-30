@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Aggiunge il campo is_readonly_stage nella vista form dello stage -->
+    <record id="helpdesk_stage_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.stage.form.inherit.customizations</field>
+        <field name="model">helpdesk.stage</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_stage_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Aggiunge il campo dopo "fold" -->
+            <field name="fold" position="after">
+                <field name="is_readonly_stage"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Aggiunge il campo anche nella vista tree -->
+    <record id="helpdesk_stage_view_tree_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.stage.tree.inherit.customizations</field>
+        <field name="model">helpdesk.stage</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_stage_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="is_readonly_stage" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

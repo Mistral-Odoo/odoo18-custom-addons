@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ereditarietà del template fattura per aggiungere colonna Codice Noleggio -->
+    <template id="report_invoice_document_codice_noleggio"
+              inherit_id="account.report_invoice_document">
+
+        <!-- Variabile per controllo visibilità colonna (solo se almeno una riga ha codice) -->
+        <xpath expr="//t[@t-set='display_discount']" position="after">
+            <t t-set="display_codice_noleggio"
+               t-value="any(l.codice_noleggio for l in o.invoice_line_ids)"/>
+        </xpath>
+
+        <!-- Header colonna Codice Noleggio (dopo Descrizione) -->
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th name="th_codice_noleggio"
+                t-if="display_codice_noleggio"
+                class="text-start">
+                <span>Codice Noleggio</span>
+            </th>
+        </xpath>
+
+        <!-- Cella dati Codice Noleggio (dopo nome riga) -->
+        <xpath expr="//td[@name='account_invoice_line_name']" position="after">
+            <td name="td_codice_noleggio"
+                t-if="display_codice_noleggio"
+                class="text-start">
+                <span t-field="line.codice_noleggio"/>
+            </td>
+        </xpath>
+
+    </template>
+</odoo>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ereditarietà della vista form ordine di vendita per abbonamenti -->
+    <record id="sale_subscription_order_view_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.subscription.customizations</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_subscription.sale_subscription_order_view_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+
+            <!-- Aggiunge campi invisibili per le condizioni -->
+            <field name="is_subscription" position="after">
+                <field name="has_subscription_end" invisible="1"/>
+                <field name="expiration_alert_sent" invisible="1"/>
+            </field>
+
+            <!--
+                Modifichiamo TUTTI i campi start_date nella vista:
+                - Nel gruppo subscription_info ci sono 2 campi (manager e non-manager)
+                - Rendiamo readonly solo quando in pausa
+            -->
+            <xpath expr="//group[@name='subscription_info']/field[@name='start_date'][1]" position="attributes">
+                <attribute name="readonly">subscription_state == '4_paused'</attribute>
+            </xpath>
+            <xpath expr="//group[@name='subscription_info']/field[@name='start_date'][2]" position="attributes">
+                <attribute name="readonly">subscription_state == '4_paused'</attribute>
+            </xpath>
+
+            <!--
+                Nascondiamo i campi start_date nel gruppo subscription_info
+                e li aggiungiamo nella sezione principale per maggiore visibilità
+            -->
+            <xpath expr="//group[@name='subscription_info']/field[@name='start_date'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group[@name='subscription_info']/field[@name='start_date'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Aggiungiamo Codice Noleggio, Durata e Data Inizio nella sezione principale -->
+            <xpath expr="//field[@name='next_invoice_date'][1]" position="before">
+                <field name="codice_noleggio"
+                       string="Codice Noleggio"
+                       invisible="not plan_id"
+                       placeholder="Es. NOL-2026-001"/>
+                <label for="subscription_duration"
+                       string="Durata"
+                       invisible="not plan_id"/>
+                <div class="o_row" invisible="not plan_id">
+                    <field name="subscription_duration"
+                           class="oe_inline"
+                           style="width: 60px;"/>
+                    <field name="subscription_duration_unit"
+                           class="oe_inline"/>
+                </div>
+                <field name="start_date"
+                       string="Data Inizio"
+                       invisible="not plan_id"
+                       readonly="subscription_state == '4_paused'"/>
+            </xpath>
+
+            <!-- Aggiungiamo commitment_date (Data consegna impegnata) dopo next_invoice_date -->
+            <xpath expr="//field[@name='next_invoice_date'][last()]" position="after">
+                <field name="commitment_date"
+                       string="Data Consegna"
+                       invisible="not plan_id"/>
+            </xpath>
+
+            <!-- Nascondiamo commitment_date nella sua posizione originale (tab Altre informazioni) -->
+            <xpath expr="//page[@name='other_information']//field[@name='commitment_date']" position="attributes">
+                <attribute name="invisible">plan_id</attribute>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

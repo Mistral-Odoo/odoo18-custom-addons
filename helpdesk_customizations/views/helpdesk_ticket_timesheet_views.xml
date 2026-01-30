@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Override per bloccare i pulsanti timer quando ticket in fase readonly -->
+    <!-- Questa vista eredita dalla vista di helpdesk_timesheet -->
+    <record id="helpdesk_ticket_view_form_inherit_timesheet_block" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.inherit.customizations.timesheet</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <!-- Nascondi i pulsanti timer quando il ticket è in fase readonly -->
+            <xpath expr="//button[@name='action_timer_start'][1]" position="attributes">
+                <attribute name="invisible">is_closed_stage or not display_timer_start_primary or not display_timer</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_timer_start'][2]" position="attributes">
+                <attribute name="invisible">is_closed_stage or not display_timer_start_secondary or not display_timer</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_timer_stop']" position="attributes">
+                <attribute name="invisible">is_closed_stage or not display_timer_stop or not display_timer</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_timer_pause']" position="attributes">
+                <attribute name="invisible">is_closed_stage or not display_timer_pause or not display_timer</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_timer_resume']" position="attributes">
+                <attribute name="invisible">is_closed_stage or not display_timer_resume or not display_timer</attribute>
+            </xpath>
+
+            <!-- Rende readonly il campo timesheet_ids quando il ticket è in fase readonly -->
+            <field name="timesheet_ids" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

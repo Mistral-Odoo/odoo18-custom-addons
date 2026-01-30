@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Override della vista form del ticket per aggiungere readonly quando chiuso -->
+    <record id="helpdesk_ticket_view_form_inherit" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.form.inherit.customizations</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <!-- Aggiunge i campi invisibili per usarli nelle condizioni -->
+            <!-- In v18 lo stage_id è nell'header, quindi usiamo kanban_state come riferimento -->
+            <field name="kanban_state" position="before">
+                <field name="is_closed_stage" invisible="1"/>
+                <field name="is_reopened" invisible="1"/>
+            </field>
+
+            <!-- Bottone Riapri Ticket nell'header (visibile solo se chiuso e non già riaperto) -->
+            <!-- Visibile solo per utenti con permessi speciali grazie al check nel metodo -->
+            <header position="inside">
+                <button name="action_reopen_ticket"
+                        type="object"
+                        string="Riapri Ticket"
+                        class="btn-secondary"
+                        groups="helpdesk_customizations.group_helpdesk_reopen_ticket"
+                        invisible="not is_closed_stage or is_reopened"/>
+            </header>
+
+            <!-- Rende i campi principali readonly quando il ticket è chiuso -->
+            <field name="name" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <field name="team_id" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <field name="user_id" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <field name="priority" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <field name="partner_id" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Aggiunge campo Nome Richiedente dopo partner_id -->
+            <field name="partner_id" position="after">
+                <field name="requester_name" readonly="is_closed_stage"/>
+            </field>
+
+            <field name="description" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Rende readonly tag_ids -->
+            <field name="tag_ids" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Rende readonly partner_phone -->
+            <field name="partner_phone" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Rende readonly email_cc (visibile solo per gruppo no_one) -->
+            <field name="email_cc" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Rende readonly le properties -->
+            <field name="properties" position="attributes">
+                <attribute name="readonly">is_closed_stage</attribute>
+            </field>
+
+            <!-- Aggiunge il tab "Soluzione" dopo il tab "Descrizione" -->
+            <xpath expr="//page[@name='description']" position="after">
+                <page string="Soluzione" name="solution">
+                    <field name="solution"
+                           placeholder="Inserisci qui la soluzione adottata per risolvere il ticket..."
+                           readonly="is_closed_stage"/>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Ereditarietà della vista form fattura per aggiungere colonna Codice Noleggio -->
+    <record id="view_move_form_codice_noleggio" model="ir.ui.view">
+        <field name="name">account.move.form.codice.noleggio</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Aggiunge colonna Codice Noleggio nella lista delle righe fattura -->
+            <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='product_id']" position="before">
+                <field name="codice_noleggio"
+                       string="Cod. Noleggio"
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
