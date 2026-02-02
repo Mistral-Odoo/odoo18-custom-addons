@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Eredita il template di notifica assegnazione per aggiungere il cliente -->
+    <template id="message_user_assigned_with_partner" inherit_id="mail.message_user_assigned">
+        <xpath expr="//span[contains(@style, 'margin-top')]" position="replace">
+            <span style="margin-top: 8px;">
+                You have been assigned to the <t t-esc="model_description or 'document'"/> <t t-esc="object.name"/><t t-if="object._fields.get('partner_id') and object.partner_id"> - <t t-esc="object.partner_id.name"/></t><t t-if="object._fields.get('ticket_ref') and object.ticket_ref"> - <t t-esc="object.ticket_ref"/></t>.
+            </span>
+        </xpath>
+    </template>
+</odoo>

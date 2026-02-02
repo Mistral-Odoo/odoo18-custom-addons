@@ -1,6 +1,6 @@
 {
     'name': 'Helpdesk Customizations',
-    'version': '18.0.1.1.0',
+    'version': '18.0.1.2.0',
     'category': 'Services/Helpdesk',
     'summary': 'Customizzazioni modulo Helpdesk',
     'description': """
@@ -11,15 +11,17 @@
         - Preservazione data chiusura nelle fasi post-risoluzione
         - Campo "Ticket Sola Lettura" sugli stage
         - Blocco tab Fogli Ore su ticket in fase readonly
+        - Email assegnazione ticket: aggiunto nome cliente
     """,
     'author': 'Mistral',
     'website': '',
-    'depends': ['helpdesk', 'helpdesk_timesheet'],
+    'depends': ['helpdesk', 'helpdesk_timesheet', 'mail'],
     'data': [
         'security/helpdesk_security.xml',
         'views/helpdesk_stage_views.xml',
         'views/helpdesk_ticket_views.xml',
         'views/helpdesk_ticket_timesheet_views.xml',
+        'views/mail_templates.xml',
     ],
     'installable': True,
     'application': False,
