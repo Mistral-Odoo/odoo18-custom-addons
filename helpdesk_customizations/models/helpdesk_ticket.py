@@ -68,9 +68,15 @@ class HelpdeskTicket(models.Model):
     def _user_can_reopen_ticket(self):
         """
         Verifica se l'utente corrente ha i permessi per riaprire/spostare ticket chiusi.
+        Permesso concesso a:
+        - Membri del gruppo 'Riapri Ticket Chiusi'
+        - Amministratori Helpdesk (group_helpdesk_manager)
+        - Amministratori di sistema (group_system)
         """
-        return self.env.user.has_group(
-            'helpdesk_customizations.group_helpdesk_reopen_ticket'
+        return (
+            self.env.user.has_group('helpdesk_customizations.group_helpdesk_reopen_ticket')
+            or self.env.user.has_group('helpdesk.group_helpdesk_manager')
+            or self.env.user.has_group('base.group_system')
         )
 
     def _check_stage_change_allowed(self, new_stage_id):

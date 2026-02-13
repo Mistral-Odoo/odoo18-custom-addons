@@ -21,7 +21,7 @@
                         type="object"
                         string="Riapri Ticket"
                         class="btn-secondary"
-                        groups="helpdesk_customizations.group_helpdesk_reopen_ticket"
+                        groups="helpdesk_customizations.group_helpdesk_reopen_ticket,helpdesk.group_helpdesk_manager,base.group_system"
                         invisible="not is_closed_stage or is_reopened"/>
             </header>
 

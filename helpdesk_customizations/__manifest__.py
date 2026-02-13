@@ -1,6 +1,6 @@
 {
     'name': 'Helpdesk Customizations',
-    'version': '18.0.1.2.0',
+    'version': '18.0.1.3.0',
     'category': 'Services/Helpdesk',
     'summary': 'Customizzazioni modulo Helpdesk',
     'description': """
@@ -13,7 +13,7 @@
         - Blocco tab Fogli Ore su ticket in fase readonly
         - Email assegnazione ticket: aggiunto nome cliente
     """,
-    'author': 'Mistral',
+    'author': 'Mistral Digital Solutions s.r.l',
     'website': '',
     'depends': ['helpdesk', 'helpdesk_timesheet', 'mail'],
     'data': [
@@ -23,6 +23,11 @@
         'views/helpdesk_ticket_timesheet_views.xml',
         'views/mail_templates.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'helpdesk_customizations/static/src/js/statusbar_patch.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
