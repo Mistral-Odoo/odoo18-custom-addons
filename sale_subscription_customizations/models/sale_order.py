@@ -168,21 +168,33 @@ class SaleOrder(models.Model):
         """
         Override di action_confirm per evitare che start_date e next_invoice_date
         vengano impostati automaticamente a oggi alla conferma.
+        Pre-imposta temporaneamente le date per subscription senza commitment_date
+        per evitare crash nel codice enterprise (project_sale_subscription).
         """
-        # Salviamo se commitment_date è vuoto PRIMA della conferma
-        orders_without_commitment = {
-            order.id: not order.commitment_date
-            for order in self
-            if order.is_subscription
-        }
+        orders_without_commitment = {}
+        today = fields.Date.today()
 
-        # Chiamiamo il metodo originale
+        for order in self:
+            if order.is_subscription and not order.commitment_date:
+                orders_without_commitment[order.id] = True
+                # Imposta temporaneamente le date via SQL per bypassare
+                # il write override che blocca la scrittura
+                self.env.cr.execute("""
+                    UPDATE sale_order
+                    SET start_date = %s,
+                        next_invoice_date = %s
+                    WHERE id = %s
+                """, (today, today, order.id))
+
+        if orders_without_commitment:
+            self.invalidate_recordset(['start_date', 'next_invoice_date'])
+
+        # Chiamiamo il metodo originale - ora non crasherà
         res = super().action_confirm()
 
-        # Per gli ordini senza commitment_date, resettiamo le date
+        # Per gli ordini senza commitment_date, resettiamo le date a NULL
         for order in self:
-            if order.id in orders_without_commitment and orders_without_commitment[order.id]:
-                # Forza il reset usando SQL diretto
+            if orders_without_commitment.get(order.id):
                 self.env.cr.execute("""
                     UPDATE sale_order
                     SET start_date = NULL,
@@ -191,8 +203,8 @@ class SaleOrder(models.Model):
                     WHERE id = %s
                 """, (order.id,))
 
-        # Invalida la cache per questi record
-        self.invalidate_recordset(['start_date', 'next_invoice_date', 'end_date'])
+        if orders_without_commitment:
+            self.invalidate_recordset(['start_date', 'next_invoice_date', 'end_date'])
 
         return res
 
