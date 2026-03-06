@@ -59,6 +59,18 @@
                        readonly="subscription_state == '4_paused'"/>
             </xpath>
 
+            <!--
+                next_invoice_date è obbligatorio nella vista enterprise quando plan_id and state == 'sale'.
+                Aggiungiamo la condizione su commitment_date: se non è valorizzata,
+                le date subscription restano vuote e il campo non deve essere obbligatorio.
+            -->
+            <xpath expr="//field[@name='next_invoice_date'][1]" position="attributes">
+                <attribute name="required">plan_id and state == 'sale' and commitment_date</attribute>
+            </xpath>
+            <xpath expr="//field[@name='next_invoice_date'][2]" position="attributes">
+                <attribute name="required">plan_id and state == 'sale' and commitment_date</attribute>
+            </xpath>
+
             <!-- Aggiungiamo commitment_date (Data consegna impegnata) dopo next_invoice_date -->
             <xpath expr="//field[@name='next_invoice_date'][last()]" position="after">
                 <field name="commitment_date"
