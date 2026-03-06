@@ -64,10 +64,10 @@
                 Aggiungiamo la condizione su commitment_date: se non è valorizzata,
                 le date subscription restano vuote e il campo non deve essere obbligatorio.
             -->
-            <xpath expr="//field[@name='next_invoice_date'][1]" position="attributes">
+            <xpath expr="//field[@name='next_invoice_date'][@groups='!sales_team.group_sale_manager']" position="attributes">
                 <attribute name="required">plan_id and state == 'sale' and commitment_date</attribute>
             </xpath>
-            <xpath expr="//field[@name='next_invoice_date'][2]" position="attributes">
+            <xpath expr="//field[@name='next_invoice_date'][@groups='sales_team.group_sale_manager']" position="attributes">
                 <attribute name="required">plan_id and state == 'sale' and commitment_date</attribute>
             </xpath>
 

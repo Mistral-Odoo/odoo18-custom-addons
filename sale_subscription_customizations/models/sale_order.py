@@ -58,8 +58,10 @@ class SaleOrder(models.Model):
         for so in self:
             if not so.is_subscription:
                 so.start_date = False
-            # NON impostiamo start_date = today() come fa il modulo standard
-            # Lo start_date verrà impostato solo quando commitment_date viene valorizzato
+            elif not so.start_date:
+                # NON impostiamo start_date = today() come fa il modulo standard
+                # Assegnazione esplicita a False per rispettare il contratto compute
+                so.start_date = False
 
     def _compute_next_invoice_date(self):
         """
@@ -71,10 +73,12 @@ class SaleOrder(models.Model):
             if not so.is_subscription and so.subscription_state != '7_upsell':
                 so.next_invoice_date = False
             elif not so.next_invoice_date and so.state == 'sale':
-                # Modifica: impostiamo next_invoice_date SOLO se start_date è valorizzato
+                # Impostiamo next_invoice_date SOLO se start_date è valorizzato
                 if so.start_date:
                     so.next_invoice_date = so.start_date
-                # Se start_date è vuoto, lasciamo vuoto anche next_invoice_date
+                else:
+                    # Assegnazione esplicita per rispettare il contratto compute
+                    so.next_invoice_date = False
 
     def _set_deferred_end_date_from_template(self):
         """
