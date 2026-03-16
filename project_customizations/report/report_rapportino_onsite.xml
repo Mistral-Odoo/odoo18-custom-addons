@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template condiviso per il corpo del rapportino -->
+    <template id="rapportino_onsite_page">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <t t-set="company" t-value="doc.company_id or doc.env.company"/>
+                    <div class="page">
+                        <!-- Informazioni cliente -->
+                        <div class="row mt16 mb16" t-if="doc.partner_id">
+                            <div class="col-6 offset-6">
+                                <strong>Cliente:</strong><br/>
+                                <span t-field="doc.partner_id.name"/><br/>
+                                <t t-if="doc.partner_id.street">
+                                    <span t-field="doc.partner_id.street"/><br/>
+                                </t>
+                                <t t-if="doc.partner_id.city or doc.partner_id.zip">
+                                    <span t-if="doc.partner_id.zip" t-field="doc.partner_id.zip"/>
+                                    <span t-if="doc.partner_id.city" t-field="doc.partner_id.city"/>
+                                    <t t-if="doc.partner_id.state_id">
+                                        (<span t-field="doc.partner_id.state_id.code"/>)
+                                    </t><br/>
+                                </t>
+                                <t t-if="doc.partner_id.phone">
+                                    Tel: <span t-field="doc.partner_id.phone"/><br/>
+                                </t>
+                                <t t-if="doc.partner_id.email">
+                                    Email: <span t-field="doc.partner_id.email"/>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Titolo -->
+                        <h2 class="mt16 mb16">
+                            Rapportino on-site: <span t-esc="doc.display_name"/>
+                        </h2>
+
+                        <!-- Tabella ore -->
+                        <t t-set="lines" t-value="doc.timesheet_ids"/>
+                        <t t-set="show_task" t-value="False"/>
+                        <t t-set="show_project" t-value="False"/>
+                        <t t-if="lines" t-call="hr_timesheet.timesheet_table"/>
+                        <p t-else="">Nessuna registrazione ore presente.</p>
+
+                        <!-- Sezione firme -->
+                        <div class="row mt64">
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto; padding-top: 8px;">
+                                    <strong>FIRMA RESPONSABILE</strong>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto; padding-top: 8px;">
+                                    <strong>FIRMA CLIENTE</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report per Project Task -->
+    <template id="report_rapportino_task">
+        <t t-call="project_customizations.rapportino_onsite_page"/>
+    </template>
+
+    <record id="rapportino_onsite_task" model="ir.actions.report">
+        <field name="name">Rapportino on-site</field>
+        <field name="model">project.task</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customizations.report_rapportino_task</field>
+        <field name="report_file">report_rapportino_task</field>
+        <field name="binding_model_id" ref="project.model_project_task"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Report per Helpdesk Ticket -->
+    <template id="report_rapportino_ticket">
+        <t t-call="project_customizations.rapportino_onsite_page"/>
+    </template>
+
+    <record id="rapportino_onsite_ticket" model="ir.actions.report">
+        <field name="name">Rapportino on-site</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">project_customizations.report_rapportino_ticket</field>
+        <field name="report_file">report_rapportino_ticket</field>
+        <field name="binding_model_id" ref="helpdesk.model_helpdesk_ticket"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
