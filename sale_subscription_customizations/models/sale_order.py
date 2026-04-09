@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    active = fields.Boolean(string='Attivo', default=True)
+
     # Campi per la durata dell'abbonamento
     subscription_duration = fields.Integer(
         string='Durata Abbonamento',
