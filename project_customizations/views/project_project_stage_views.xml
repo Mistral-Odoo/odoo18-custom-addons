@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Aggiunge is_to_invoice alla lista fasi progetto -->
+    <record id="project_project_stage_view_tree_inherit" model="ir.ui.view">
+        <field name="name">project.project.stage.view.list.inherit</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="is_to_invoice" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Aggiunge is_to_invoice al form fasi progetto -->
+    <record id="project_project_stage_view_form_inherit" model="ir.ui.view">
+        <field name="name">project.project.stage.view.form.inherit</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_form"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="is_to_invoice"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

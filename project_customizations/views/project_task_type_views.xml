@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Aggiunge is_to_invoice alla lista fasi task -->
+    <record id="task_type_tree_inherit" model="ir.ui.view">
+        <field name="name">project.task.type.list.inherit</field>
+        <field name="model">project.task.type</field>
+        <field name="inherit_id" ref="project.task_type_tree"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="is_to_invoice" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Aggiunge is_to_invoice al form fasi task -->
+    <record id="task_type_edit_inherit" model="ir.ui.view">
+        <field name="name">project.task.type.form.inherit</field>
+        <field name="model">project.task.type</field>
+        <field name="inherit_id" ref="project.task_type_edit"/>
+        <field name="arch" type="xml">
+            <field name="fold" position="after">
+                <field name="is_to_invoice"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

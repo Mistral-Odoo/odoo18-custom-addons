@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form view del wizard -->
+    <record id="timesheet_export_wizard_form" model="ir.ui.view">
+        <field name="name">timesheet.export.wizard.form</field>
+        <field name="model">timesheet.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Esporta Timesheet">
+                <!-- Stato Bozza -->
+                <group invisible="state != 'draft'">
+                    <group>
+                        <field name="state" invisible="1"/>
+                        <field name="project_stage_ids" widget="many2many_tags"/>
+                        <field name="task_stage_name" placeholder="es. Da fatturare"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <group>
+                        <field name="line_count"/>
+                    </group>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="line_count &gt; 0">
+                        <strong>Nessuna riga timesheet trovata.</strong>
+                        Verificare che le fasi siano configurate come "Da Fatturare"
+                        e che ci siano fogli ore non ancora esportati.
+                    </div>
+                </group>
+                <!-- Stato Completato -->
+                <group invisible="state != 'done'">
+                    <div class="alert alert-success" role="alert">
+                        <strong>Export completato!</strong>
+                        Esportate <field name="exported_count" class="d-inline" readonly="1"/> righe timesheet.
+                    </div>
+                </group>
+                <footer invisible="state != 'draft'">
+                    <button name="action_export" string="Genera Export"
+                            type="object" class="btn-primary"
+                            invisible="line_count == 0"/>
+                    <button string="Annulla" class="btn-secondary" special="cancel"/>
+                </footer>
+                <footer invisible="state != 'done'">
+                    <button name="action_download" string="Scarica ZIP"
+                            type="object" class="btn-primary"/>
+                    <button string="Chiudi" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Azione per aprire il wizard -->
+    <record id="action_open_timesheet_export_wizard" model="ir.actions.act_window">
+        <field name="name">Esporta Timesheet</field>
+        <field name="res_model">timesheet.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Voce di menu nel modulo Progetto -->
+    <menuitem
+        id="menu_timesheet_export"
+        name="Esporta Timesheet"
+        parent="project.menu_main_pm"
+        action="action_open_timesheet_export_wizard"
+        groups="project.group_project_manager"
+        sequence="50"
+    />
+
+</odoo>
