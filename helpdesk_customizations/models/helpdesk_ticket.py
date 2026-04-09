@@ -1,9 +1,25 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.osv import expression
+from odoo.tools.misc import unquote
 
 
 class HelpdeskTicket(models.Model):
     _inherit = 'helpdesk.ticket'
+
+    def _domain_sale_line_id(self):
+        domain = super()._domain_sale_line_id()
+        today = fields.Date.to_string(fields.Date.context_today(self))
+        # Filtra solo righe con prodotti che hanno il tag "Assistenza"
+        tag_domain = [('product_template_id.product_tag_ids.name', '=', 'Assistenza')]
+        # Per prodotti ricorrenti: scadenza abbonamento deve essere futura
+        # Per prodotti non ricorrenti: sempre visibili
+        subscription_domain = [
+            '|',
+            ('order_id.is_subscription', '=', False),
+            ('order_id.end_date', '>=', today),
+        ]
+        return expression.AND([domain, tag_domain, subscription_domain])
 
     # Campo per la soluzione del ticket (separato dalla descrizione/richiesta)
     solution = fields.Html(

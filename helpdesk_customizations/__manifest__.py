@@ -15,7 +15,7 @@
     """,
     'author': 'Mistral Digital Solutions s.r.l',
     'website': '',
-    'depends': ['helpdesk', 'helpdesk_timesheet', 'mail'],
+    'depends': ['helpdesk', 'helpdesk_timesheet', 'helpdesk_sale_timesheet', 'sale_subscription', 'mail'],
     'data': [
         'security/helpdesk_security.xml',
         'views/helpdesk_stage_views.xml',
