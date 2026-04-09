@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_invoice_document_line_fields"
+              inherit_id="account.report_invoice_document">
+
+        <!-- Variabili visibilità colonne -->
+        <xpath expr="//t[@t-set='display_discount']" position="after">
+            <t t-set="display_product_code"
+               t-value="any(l.product_code for l in o.invoice_line_ids)"/>
+            <t t-set="display_serial_number"
+               t-value="any(l.serial_number for l in o.invoice_line_ids)"/>
+        </xpath>
+
+        <!-- Header colonne (dopo Descrizione) -->
+        <xpath expr="//th[@name='th_description']" position="after">
+            <th name="th_product_code" t-if="display_product_code" class="text-start">
+                <span>Codice Prodotto</span>
+            </th>
+            <th name="th_serial_number" t-if="display_serial_number" class="text-start">
+                <span>Serial Number</span>
+            </th>
+        </xpath>
+
+        <!-- Celle dati (dopo nome riga) -->
+        <xpath expr="//td[@name='account_invoice_line_name']" position="after">
+            <td name="td_product_code" t-if="display_product_code" class="text-start">
+                <span t-field="line.product_code"/>
+            </td>
+            <td name="td_serial_number" t-if="display_serial_number" class="text-start">
+                <span t-field="line.serial_number"/>
+            </td>
+        </xpath>
+
+    </template>
+
+</odoo>
