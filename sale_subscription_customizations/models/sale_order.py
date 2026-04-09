@@ -39,6 +39,15 @@ class SaleOrder(models.Model):
         help='True se l\'attività di alert per la scadenza è già stata creata.'
     )
 
+    # Rinnovo tacito: se True, alla scadenza end_date viene estesa automaticamente
+    auto_renewal = fields.Boolean(
+        string='Rinnovo Tacito',
+        default=True,
+        help='Se abilitato, alla scadenza l\'abbonamento viene rinnovato automaticamente '
+             'spostando la data di fine in avanti della stessa durata. '
+             'Se disabilitato, il venditore riceve una notifica 1 mese prima della scadenza.'
+    )
+
     # Campo per identificare univocamente il noleggio/abbonamento nelle fatture
     codice_noleggio = fields.Char(
         string='Codice Noleggio',
@@ -246,23 +255,58 @@ class SaleOrder(models.Model):
             if not self.next_invoice_date or self.next_invoice_date < self.start_date:
                 self.next_invoice_date = self.start_date
 
+    def _subscription_auto_close(self):
+        """
+        Override per escludere dalla chiusura automatica gli abbonamenti
+        con rinnovo tacito attivo e durata configurata.
+        Il nostro cron si occuperà di estenderne la end_date.
+        """
+        auto_renew = self.filtered(
+            lambda c: c.auto_renewal and c.subscription_duration > 0
+        )
+        return super(SaleOrder, self - auto_renew)._subscription_auto_close()
+
     @api.model
     def _cron_create_expiration_alerts(self):
         """
-        Cron job che crea attività per gli ordini in abbonamento
-        che scadono entro 1 mese.
+        Cron job giornaliero per abbonamenti con scadenza:
+        1. Rinnovo tacito (auto_renewal=True): alla scadenza, estende end_date
+           della stessa durata e resetta expiration_alert_sent.
+        2. Rinnovo non tacito (auto_renewal=False): crea attività per il venditore
+           1 mese prima della scadenza.
         """
         today = fields.Date.today()
-        one_month_later = today + relativedelta(months=1)
 
-        # Cerca abbonamenti attivi con scadenza entro 1 mese
-        # che non hanno già ricevuto l'alert
+        # --- RINNOVO AUTOMATICO (tacito) ---
+        orders_to_renew = self.search([
+            ('is_subscription', '=', True),
+            ('subscription_state', '=', '3_progress'),
+            ('auto_renewal', '=', True),
+            ('end_date', '!=', False),
+            ('end_date', '<=', today),
+            ('subscription_duration', '>', 0),
+        ])
+        for order in orders_to_renew:
+            if order.subscription_duration_unit == 'months':
+                new_end = order.end_date + relativedelta(
+                    months=order.subscription_duration)
+            else:
+                new_end = order.end_date + relativedelta(
+                    years=order.subscription_duration)
+            order.write({
+                'end_date': new_end,
+                'expiration_alert_sent': False,
+            })
+
+        # --- ALERT SCADENZA (rinnovo non tacito) ---
+        one_month_later = today + relativedelta(months=1)
         orders_to_alert = self.search([
             ('is_subscription', '=', True),
-            ('subscription_state', '=', '3_progress'),  # In corso
+            ('subscription_state', '=', '3_progress'),
+            ('auto_renewal', '=', False),
             ('end_date', '!=', False),
             ('end_date', '<=', one_month_later),
-            ('end_date', '>', today),  # Non già scaduti
+            ('end_date', '>', today),
             ('expiration_alert_sent', '=', False),
         ])
 
@@ -273,14 +317,12 @@ class SaleOrder(models.Model):
             ], limit=1)
 
         for order in orders_to_alert:
-            # Crea attività assegnata al venditore dell'ordine
             user_id = order.user_id.id if order.user_id else self.env.user.id
-
             self.env['mail.activity'].create({
                 'res_model_id': self.env['ir.model']._get_id('sale.order'),
                 'res_id': order.id,
                 'activity_type_id': activity_type.id if activity_type else False,
-                'summary': _('Abbonamento in scadenza'),
+                'summary': _('Abbonamento in scadenza - rinnovo manuale'),
                 'note': _(
                     'L\'abbonamento %s scade il %s. '
                     'Contattare il cliente per il rinnovo.',
@@ -290,6 +332,4 @@ class SaleOrder(models.Model):
                 'date_deadline': today,
                 'user_id': user_id,
             })
-
-            # Segna l'alert come inviato
             order.expiration_alert_sent = True

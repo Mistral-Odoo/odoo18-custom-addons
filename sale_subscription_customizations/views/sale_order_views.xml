@@ -53,6 +53,9 @@
                     <field name="subscription_duration_unit"
                            class="oe_inline"/>
                 </div>
+                <field name="auto_renewal"
+                       string="Rinnovo Tacito"
+                       invisible="not plan_id"/>
                 <field name="start_date"
                        string="Data Inizio"
                        invisible="not plan_id"
